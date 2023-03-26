@@ -1,34 +1,37 @@
-import Navbar from "./components/Navbar";
-import "@rainbow-me/rainbowkit/styles.css";
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { polygonMumbai } from "wagmi/chains";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
-const { chains, provider } = configureChains(
-  [polygonMumbai],
-  [
-    alchemyProvider({ apiKey: import.meta.env.VITE_ALCHEMY_KEY }),
-    publicProvider(),
-  ]
-);
-const { connectors } = getDefaultWallets({
-  appName: "My RainbowKit App",
-  chains,
-});
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-});
-function App() {
-  return (
-    <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains}>
-        <Navbar />
-      </RainbowKitProvider>
-    </WagmiConfig>
-  );
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+const pages = import.meta.glob("./pages/**/*.jsx", { eager: true });
+
+const routes = [];
+for (const path of Object.keys(pages)) {
+    const fileName = path.match(/\.\/pages\/(.*)\.jsx$/)?.[1];
+    if (!fileName) {
+        continue;
+    }
+
+    const normalizedPathName = fileName.includes("$")
+        ? fileName.replace("$", ":")
+        : fileName.replace(/\/index/, "");
+
+    routes.push({
+        path:
+            fileName === "index" ? "/" : `/${normalizedPathName.toLowerCase()}`,
+        Element: pages[path].default,
+        loader: pages[path]?.loader,
+        action: pages[path]?.action,
+        ErrorBoundary: pages[path]?.ErrorBoundary,
+    });
 }
+const router = createBrowserRouter(
+    routes.map(({ Element, ErrorBoundary, ...rest }) => ({
+        ...rest,
+        element: <Element />,
+        ...(ErrorBoundary && { errorElement: <ErrorBoundary /> }),
+    }))
+);
+
+const App = () => {
+    return <RouterProvider router={router} />;
+};
 
 export default App;
