@@ -5,7 +5,7 @@ import Navbar from "../../components/Navbar";
 const InsurancePage = () => {
     const { contract } = useParams();
     const [approved, setApproved] = useState(false);
-    const bondSold = true;
+    const bondSold = false;
     return (
         <div>
             <Navbar />

@@ -1,14 +1,22 @@
 import { useState } from "react";
 
 export default function CreateBond() {
-    const [selectedValue, setSelectedValue] = useState("");
-    const [approved, setApproved] = useState(false);
-    function handleSelectChange(event) {
-        setSelectedValue(event.target.value);
-    }
-    const [insuranceData, setInsuranceData] = useState({
-        assetInsured: "btc",
+    const [approved, setApproved] = useState(true);
+    const [insurance, setInsurance] = useState({
+        assetInsured: "",
+        assetDeposited: "",
+        depositAmount: "",
+        premiumAsset: "",
+        monthlyPremium: "",
+        thresholdPrice: "",
     });
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setInsurance((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
     return (
         <div>
             <div className="card w-96 bg-neutral text-neutral-content">
@@ -41,7 +49,8 @@ export default function CreateBond() {
                     <div className="flex flex-col gap-4 mt-[10px]">
                         <select
                             className="select select-primary w-full"
-                            onChange={handleSelectChange}
+                            onChange={handleInputChange}
+                            name="assetInsured"
                         >
                             <option disabled selected>
                                 What asset are you creating the insurance for?
@@ -53,7 +62,8 @@ export default function CreateBond() {
                         </select>
                         <select
                             className="select select-primary w-full"
-                            onChange={handleSelectChange}
+                            onChange={handleInputChange}
+                            name="assetDeposited"
                             required
                         >
                             <option disabled selected>
@@ -66,10 +76,13 @@ export default function CreateBond() {
                             type="number"
                             placeholder="How much are you depositing?"
                             className="input input-bordered input-info w-full"
+                            onChange={handleInputChange}
+                            name="depositAmount"
                         />
                         <select
                             className="select select-primary w-full"
-                            onChange={handleSelectChange}
+                            onChange={handleInputChange}
+                            name="premiumAsset"
                         >
                             <option disabled selected>
                                 Which asset will you accept for premium
@@ -83,16 +96,25 @@ export default function CreateBond() {
                             type="number"
                             placeholder="How much is the monthly premium?"
                             className="input input-bordered input-info w-full"
+                            onChange={handleInputChange}
+                            name="monthlyPremium"
                         />
                         <input
                             type="number"
                             placeholder="Threshold price? Triggers payment to buyer(insured amount)"
                             className="input input-bordered input-info w-full"
                             required
+                            onChange={handleInputChange}
+                            name="thresholdPrice"
                         />
                         {!approved ? (
-                            <button className="btn btn-info">
-                                Approve {insuranceData.assetInsured} spend
+                            <button
+                                className="btn btn-info"
+                                onClick={() => {
+                                    console.log(insurance);
+                                }}
+                            >
+                                Approve {insurance.assetDeposited} spend
                             </button>
                         ) : (
                             <button className="btn btn-success">

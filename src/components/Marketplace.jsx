@@ -1,4 +1,4 @@
-export default function Marketplace({ insurances }) {
+export default function MarketplaceList({ insurances }) {
     console.log(insurances);
     return (
         <div className="w-[92%] m-auto">
