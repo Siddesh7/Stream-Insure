@@ -31,7 +31,8 @@ contract InsuranceBond is AutomationCompatibleInterface {
         address assetInsured,
         uint _insuredAmt,
         address _tokenAddress,
-        int96 _flowRate
+        int96 _flowRate,
+        address _insurer
     ) {
         priceFeed = AggregatorV3Interface(assetInsured);
         threshold = _threshold;
@@ -39,6 +40,7 @@ contract InsuranceBond is AutomationCompatibleInterface {
         flowRate = _flowRate;
         assetHeld = IERC20(_tokenAddress);
         insuredAmmount = _insuredAmt;
+        insurer = _insurer;
     }
 
     function depositInsuredAmount() public payable {
