@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useContractRead } from "wagmi";
 import Navbar from "../../components/Navbar";
@@ -8,7 +8,7 @@ import { insuranceBond } from "../../contract";
 const InsurancePage = () => {
     const { contract } = useParams();
     const [approved, setApproved] = useState(false);
-    const bondSold = true;
+    const [bondSold, setBondSold] = useState(false);
 
     const {
         data: insuranceData,
@@ -20,9 +20,13 @@ const InsurancePage = () => {
         functionName: "getInsuranceData",
         chainId: 80001,
     });
-    var insuredAmt = ethers.BigNumber.from(insuranceData[2]._hex).toNumber();
-
-    console.log(insuredAmt);
+    var insuredAmt = ethers.BigNumber.from(insuranceData[2]).toNumber();
+    useEffect(() => {
+        if (insuranceData[1] != "0x0000000000000000000000000000000000000000") {
+            setBondSold(true);
+        }
+        console.log(insuranceData);
+    }, [insuranceData]);
     return (
         <div>
             <Navbar />
@@ -35,7 +39,7 @@ const InsurancePage = () => {
                                 <h2 className="card-title text-white">
                                     Insurer
                                 </h2>
-                                {insuranceData[0]}
+                                <p>{insuranceData[0]}</p>
                             </div>
                         </div>
                         <div className="card w-[33%] bg-base-100 shadow-xl border-4">
@@ -43,6 +47,7 @@ const InsurancePage = () => {
                                 <h2 className="card-title text-white">
                                     Insured Amount in Vault
                                 </h2>
+                                <p>{insuredAmt}</p>
                             </div>
                         </div>{" "}
                         <div className="card w-[33%] bg-base-100 shadow-xl border-4">
@@ -160,10 +165,7 @@ const InsurancePage = () => {
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                     ></path>
                                 </svg>
-                                <span>
-                                    {insuranceData[1]} already has bought this
-                                    bond.
-                                </span>
+                                <span>already has bought this bond.</span>
                             </div>
                         </div>
                     )}

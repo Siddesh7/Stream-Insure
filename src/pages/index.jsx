@@ -7,7 +7,7 @@ export default function Home() {
         isError,
         isLoading,
     } = useContractRead({
-        address: "0x0A790c41F149e8bDA8FE5334C8D97E2c9f7b3515",
+        address: "0x463984b2F699929580F9E779AF238a353AE74267",
         abi: abi,
         functionName: "getCreatedInsurances",
         chainId: 80001,

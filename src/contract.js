@@ -88,19 +88,6 @@ export const abi = [
     {
         inputs: [
             {
-                internalType: "address payable",
-                name: "_recipient",
-                type: "address",
-            },
-        ],
-        name: "transferEther",
-        outputs: [],
-        stateMutability: "payable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
                 internalType: "contract LinkTokenInterface",
                 name: "_link",
                 type: "address",
@@ -126,6 +113,19 @@ export const abi = [
     {
         stateMutability: "payable",
         type: "receive",
+    },
+    {
+        inputs: [],
+        name: "allowAsset",
+        outputs: [
+            {
+                internalType: "uint256",
+                name: "",
+                type: "uint256",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
     },
     {
         inputs: [],
@@ -193,6 +193,19 @@ export const abi = [
                 internalType: "address",
                 name: "",
                 type: "address",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "insuredAmt",
+        outputs: [
+            {
+                internalType: "uint256",
+                name: "",
+                type: "uint256",
             },
         ],
         stateMutability: "view",
@@ -374,6 +387,25 @@ export const insuranceBond = [
                 internalType: "address",
                 name: "",
                 type: "address",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "int96",
+                name: "amountInEther",
+                type: "int96",
+            },
+        ],
+        name: "calculateFlowRate",
+        outputs: [
+            {
+                internalType: "int96",
+                name: "",
+                type: "int96",
             },
         ],
         stateMutability: "view",
