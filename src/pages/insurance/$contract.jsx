@@ -3,13 +3,15 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useContractRead } from "wagmi";
 import Navbar from "../../components/Navbar";
+import { calculateFlowRate } from "../../constant";
+
 import { insuranceBond } from "../../contract";
 
 const InsurancePage = () => {
     const { contract } = useParams();
     const [approved, setApproved] = useState(false);
     const [bondSold, setBondSold] = useState(false);
-
+    let flowRate = 0;
     const {
         data: insuranceData,
         isError,
@@ -21,12 +23,17 @@ const InsurancePage = () => {
         chainId: 80001,
     });
     var insuredAmt = ethers.BigNumber.from(insuranceData[2]).toNumber();
+    flowRate = calculateFlowRate(
+        ethers.BigNumber.from(insuranceData[4]).toNumber()
+    );
+    let threshold = ethers.BigNumber.from(insuranceData[5]).toNumber();
     useEffect(() => {
         if (insuranceData[1] != "0x0000000000000000000000000000000000000000") {
             setBondSold(true);
         }
         console.log(insuranceData);
     }, [insuranceData]);
+
     return (
         <div>
             <Navbar />
@@ -55,7 +62,7 @@ const InsurancePage = () => {
                                 <h2 className="card-title text-white">
                                     Flowrate Premium
                                 </h2>
-                                <p>{"address"}</p>
+                                <p>{flowRate}</p>
                             </div>
                         </div>
                     </div>{" "}
@@ -129,7 +136,7 @@ const InsurancePage = () => {
                                 <span className="text-[10px] mt-[-10px]">
                                     This is the breaking condition
                                 </span>
-                                <p>{"address"}</p>
+                                <p>{threshold}</p>
                             </div>
                         </div>
                         <div className="card w-[33%] bg-base-100 shadow-xl border-4">
@@ -137,7 +144,7 @@ const InsurancePage = () => {
                                 <h2 className="card-title text-white">
                                     Asset held in the bond
                                 </h2>
-                                <p>{"3000"}</p>
+                                <p>{insuranceData[3]}</p>
                             </div>
                         </div>{" "}
                         <div className="card w-[33%] bg-base-100 shadow-xl border-4">
