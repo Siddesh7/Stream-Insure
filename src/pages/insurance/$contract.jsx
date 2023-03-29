@@ -1,11 +1,17 @@
 import { BigNumber, ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useContractRead } from "wagmi";
+import {
+    useContractRead,
+    usePrepareContractWrite,
+    useContractWrite,
+    useProvider,
+    useSigner,
+} from "wagmi";
 import Navbar from "../../components/Navbar";
-import { calculateFlowRate } from "../../constant";
+import { calculateFlowRate, updateFlowPermissions } from "../../constant";
 
-import { insuranceBond } from "../../contract";
+import { abi, insuranceBond } from "../../contract";
 
 const InsurancePage = () => {
     const { contract } = useParams();
@@ -27,6 +33,17 @@ const InsurancePage = () => {
         ethers.BigNumber.from(insuranceData[4]).toNumber()
     );
     let threshold = ethers.BigNumber.from(insuranceData[5]).toNumber();
+
+    const { config: buyBond } = usePrepareContractWrite({
+        address: contract,
+        abi: insuranceBond,
+        functionName: "buyInsurance",
+    });
+    const { write: buy } = useContractWrite(buyBond);
+
+    const provider = useProvider();
+    const signer = useSigner();
+
     useEffect(() => {
         if (insuranceData[1] != "0x0000000000000000000000000000000000000000") {
             setBondSold(true);
@@ -116,11 +133,27 @@ const InsurancePage = () => {
                                     </p>
                                 )}
                                 {!approved ? (
-                                    <button className="btn  btn-active btn-primary">
+                                    <button
+                                        className="btn  btn-active btn-primary"
+                                        onClick={async () => {
+                                            const state =
+                                                await updateFlowPermissions(
+                                                    contract,
+                                                    "10000000000000000000000000",
+                                                    7,
+                                                    provider,
+                                                    signer
+                                                );
+                                            setApproved(state);
+                                        }}
+                                    >
                                         Approve spend
                                     </button>
                                 ) : (
-                                    <button className="btn  btn-active btn-success">
+                                    <button
+                                        className="btn  btn-active btn-success"
+                                        onClick={buy}
+                                    >
                                         Buy
                                     </button>
                                 )}

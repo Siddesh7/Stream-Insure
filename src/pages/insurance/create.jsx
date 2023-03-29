@@ -12,6 +12,7 @@ export default function CreateBond() {
     });
     const handleInputChange = (event) => {
         const { name, value } = event.target;
+
         setInsurance((prevData) => ({
             ...prevData,
             [name]: value,
@@ -57,7 +58,7 @@ export default function CreateBond() {
                             </option>
                             <option>Bitcoin</option>
                             <option>Ethereum</option>
-                            <option>Polygon</option>
+                            <option>Matic</option>
                             <option>Solana</option>
                         </select>
                         <select
@@ -69,8 +70,9 @@ export default function CreateBond() {
                             <option disabled selected>
                                 Which asset are you depositing into the bond?
                             </option>
-                            <option>USDC</option>
+
                             <option>DAI</option>
+                            <option>fUSD</option>
                         </select>
                         <input
                             type="number"
@@ -89,6 +91,7 @@ export default function CreateBond() {
                                 payments?
                             </option>
                             <option>fDAIx</option>
+                            <option>fTUSDx</option>
                             <option>fUSDCx</option>
                         </select>
 
