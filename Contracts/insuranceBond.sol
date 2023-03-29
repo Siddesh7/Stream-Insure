@@ -24,43 +24,48 @@ contract InsuranceBond is AutomationCompatibleInterface {
     uint public insuredAmmount;
     IERC20 public assetHeld;
     int96 public flowRate;
-
-    constructor(
-        int _threshold,
-        ISuperToken _token,
-        address assetInsured,
-        uint _insuredAmt,
-        address _tokenAddress,
-        int96 _flowRate,
-        address _insurer
-    ) {
-        priceFeed = AggregatorV3Interface(assetInsured);
-        threshold = _threshold;
-        token = _token;
-        flowRate = _flowRate;
-        assetHeld = IERC20(_tokenAddress);
-        insuredAmmount = _insuredAmt;
-        insurer = _insurer;
+ address public assetHeldAddress;
+    struct insuranceData {
+        address insurer;
+        address buyer;
+        uint insuredAmmount;
+        address assetHeld;
+        int96 flowRate;
+        int threshold;
     }
 
-    function depositInsuredAmount() public payable {
-        address sender = msg.sender;
-        insurer = sender;
-        address recipient = address(this);
-        bool success = assetHeld.transferFrom(
-            sender,
-            recipient,
-            insuredAmmount
+  insuranceData public myInsuranceData;
+    constructor(int _threshold, ISuperToken _token, address assetInsured, uint _insuredAmt, address _tokenAddress, int96 _flowRate,address _insurer) {
+        priceFeed = AggregatorV3Interface(
+            assetInsured
         );
+        threshold=_threshold;
+        token = _token;
+        flowRate=_flowRate;
+        assetHeld =  IERC20(_tokenAddress);
+        assetHeldAddress=_tokenAddress;
+        insuredAmmount=_insuredAmt;
+        insurer=_insurer;
+
+        myInsuranceData = insuranceData(insurer,buyer,insuredAmmount,assetHeldAddress,flowRate,threshold);
+    }
+    function getInsuranceData()  public view returns (insuranceData memory)
+    {
+        return myInsuranceData;
+    } 
+   function depositInsuredAmount() payable public{
+        address sender = msg.sender;
+        insurer=sender;
+        address recipient = address(this);
+        bool success = assetHeld.transferFrom(sender, recipient, insuredAmmount);
         require(success, "Transfer failed");
     }
-
-    // Function to receive Ether. msg.data must be empty
+     // Function to receive Ether. msg.data must be empty
     receive() external payable {}
 
     // Fallback function is called when msg.data is not empty
     fallback() external payable {}
-
+      
     function getLatestPrice() public view returns (int) {
         // prettier-ignore
         (
@@ -72,15 +77,17 @@ contract InsuranceBond is AutomationCompatibleInterface {
         ) = priceFeed.latestRoundData();
         return price;
     }
-
     function buyInsurance() public {
         require(!hasPurchased, "Insurance has already been purchased");
-        buyer = msg.sender;
+        buyer=msg.sender;
         token.createFlowFrom(msg.sender, insurer, flowRate);
-        hasPurchased = true;
-    }
+        hasPurchased=true;
+        myInsuranceData = insuranceData(insurer,buyer,insuredAmmount,assetHeldAddress,flowRate,threshold);
 
-    function checkUpkeep(
+    }
+ 
+
+   function checkUpkeep(
         bytes calldata /* checkData */
     )
         external
@@ -89,16 +96,15 @@ contract InsuranceBond is AutomationCompatibleInterface {
     {
         priceOfInsuredAsset = getLatestPrice();
 
-        if (priceOfInsuredAsset < threshold && status == false) {
-            upkeepNeeded = true;
-        } else {
-            upkeepNeeded = false;
-        }
+        if(priceOfInsuredAsset<threshold && status==false){
+            upkeepNeeded=true;
+        }else{
+            upkeepNeeded=false;  
+        } 
     }
-
     function performUpkeep(bytes calldata /* performData */) external override {
-        status = true;
-        assetHeld.transfer(buyer, assetHeld.balanceOf(address(this)));
+        status=true;
+        assetHeld.transfer( buyer, assetHeld.balanceOf(address(this)));
         token.deleteFlowFrom(buyer, insurer);
     }
 }
