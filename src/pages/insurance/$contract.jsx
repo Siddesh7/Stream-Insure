@@ -73,7 +73,7 @@ const InsurancePage = () => {
             );
         }
 
-        console.log(insuranceData);
+        console.log(bondSold);
     }, [insuranceData]);
 
     return (
@@ -81,49 +81,70 @@ const InsurancePage = () => {
             <Navbar />
 
             {insuranceData && (
-                <div className="w-[95%] m-auto">
-                    <div className="flex justify-between mt-[30px] gap-8">
-                        <div className="card w-[33%] bg-base-100 shadow-xl border-4">
-                            <div className="card-body">
-                                <h2 className="card-title text-white">
-                                    Insurer
-                                </h2>
-                                <p>{insuranceData[0]}</p>
-                            </div>
+                <div className="flex flex-col items-center justify-center mt-8 w-[90%] m-auto">
+                    <h1 className="text-2xl md:text-4xl font-bold mb-8">
+                        Insurance Parameters
+                    </h1>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+                        <div className="bg-white rounded-lg shadow-lg p-4">
+                            <h2 className="text-lg font-bold mb-2 text-green-500">
+                                Insurer
+                            </h2>
+                            <p className="text-gray-700">{insuranceData[0]}</p>
                         </div>
-                        <div className="card w-[33%] bg-base-100 shadow-xl border-4">
-                            <div className="card-body">
-                                <h2 className="card-title text-white">
-                                    Insured Amount in Vault
-                                </h2>
-                                <p>{priceData.insuredAmt}</p>
-                            </div>
-                        </div>{" "}
-                        <div className="card w-[33%] bg-base-100 shadow-xl border-4">
-                            <div className="card-body">
-                                <h2 className="card-title text-white">
-                                    Flowrate Premium
-                                </h2>
-                                <p>{priceData.flowRate}</p>
-                            </div>
+                        <div className="bg-white rounded-lg shadow-lg p-4">
+                            <h2 className="text-lg font-bold mb-2 text-green-500">
+                                Insured Amount in vault
+                            </h2>
+                            <p className="text-gray-700">
+                                {priceData.insuredAmt}
+                            </p>
                         </div>
-                    </div>{" "}
-                    <div className="flex mt-[30px] items-center gap-8">
-                        <h2 className="text-[35px] text-white">
-                            Insurance Bond Details
-                        </h2>
-
-                        {!bondSold && (
-                            <label
-                                htmlFor="my-modal-3"
-                                className="btn btn-success"
-                            >
-                                Buy bond
-                            </label>
+                        <div className="bg-white rounded-lg shadow-lg p-4">
+                            <h2 className="text-lg font-bold mb-2 text-green-500">
+                                Flowrate in $/mo (Premium)
+                            </h2>
+                            <p className="text-gray-700">
+                                {priceData.flowRate}
+                            </p>
+                        </div>
+                        <div className="bg-white rounded-lg shadow-lg p-4">
+                            <h2 className="text-lg font-bold mb-2 text-green-500">
+                                Price threshold
+                            </h2>
+                            <p className="text-gray-700">
+                                {priceData.threshold}
+                            </p>
+                        </div>
+                        <div className="bg-white rounded-lg shadow-lg p-4">
+                            <h2 className="text-lg font-bold mb-2 text-green-500">
+                                Asset held in the vault
+                            </h2>
+                            <p className="text-gray-700">{insuranceData[3]}</p>
+                        </div>
+                        {bondSold && (
+                            <div className="bg-white rounded-lg shadow-lg p-4">
+                                <h2 className="text-lg font-bold mb-2 text-green-500">
+                                    Buyer
+                                </h2>
+                                <a
+                                    href={`https://mumbai.polygonscan.com/address/${insuranceData[1]}`}
+                                    className="text-gray-700"
+                                >
+                                    {insuranceData[1]}
+                                </a>
+                            </div>
                         )}
                     </div>
+                    {!bondSold && (
+                        <label
+                            htmlFor="my-modal-3"
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-8"
+                        >
+                            Buy bond
+                        </label>
+                    )}
                     <div>
-                        {/* Put this part before </body> tag */}
                         <input
                             type="checkbox"
                             id="my-modal-3"
@@ -159,7 +180,7 @@ const InsurancePage = () => {
                                 )}
                                 {!approved ? (
                                     <button
-                                        className="btn  btn-active btn-primary"
+                                        className="btn btn-active btn-primary w-full mb-4"
                                         onClick={async () => {
                                             const state =
                                                 await updateFlowPermissions(
@@ -176,7 +197,7 @@ const InsurancePage = () => {
                                     </button>
                                 ) : (
                                     <button
-                                        className="btn  btn-active btn-success"
+                                        className="btn btn-active btn-success w-full mb-4"
                                         onClick={buy}
                                     >
                                         Buy
@@ -185,56 +206,16 @@ const InsurancePage = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex justify-between mt-[30px] gap-8">
-                        <div className="card w-[33%] bg-base-100 shadow-xl border-4">
-                            <div className="card-body">
-                                <h2 className="card-title text-white">
-                                    Price threshold
-                                </h2>
-                                <span className="text-[10px] mt-[-10px]">
-                                    This is the breaking condition
-                                </span>
-                                <p>{priceData.threshold}</p>
-                            </div>
-                        </div>
-                        <div className="card w-[33%] bg-base-100 shadow-xl border-4">
-                            <div className="card-body">
-                                <h2 className="card-title text-white">
-                                    Asset held in the bond
-                                </h2>
-                                <p>{insuranceData[3]}</p>
-                            </div>
-                        </div>{" "}
-                        <div className="card w-[33%] bg-base-100 shadow-xl border-4">
-                            <div className="card-body">
-                                <h2 className="card-title text-white">
-                                    Current Price (insured asset).
-                                </h2>
-                                <p>{"3000"}</p>
-                            </div>
-                        </div>
-                    </div>
                     {bondSold && (
-                        <div className="alert alert-info shadow-lg my-[20px]">
-                            <div>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    className="stroke-current flex-shrink-0 w-6 h-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    ></path>
-                                </svg>
-                                <span>
-                                    {insuranceData[1]} already has bought this
-                                    bond.
-                                </span>
-                            </div>
+                        <div className="alert alert-info shadow-lg my-4 mx-auto text-center">
+                            <a
+                                href={`https://mumbai.polygonscan.com/address/${insuranceData[1]}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                {" "}
+                                {insuranceData[1]} already has bought this bond.
+                            </a>
                         </div>
                     )}
                 </div>
