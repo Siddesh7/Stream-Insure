@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import { abi } from "../contract";
+import { deployer } from "../contract";
 import { useContractRead } from "wagmi";
 export default function Home() {
     const {
@@ -7,8 +7,8 @@ export default function Home() {
         isError,
         isLoading,
     } = useContractRead({
-        address: "0x463984b2F699929580F9E779AF238a353AE74267",
-        abi: abi,
+        address: deployer.address,
+        abi: deployer.abi,
         functionName: "getCreatedInsurances",
         chainId: 80001,
     });

@@ -90,6 +90,6 @@ export const SuperToken = {
     fTUSDx: "0x918E0d5C96cAC79674E2D38066651212be3C9C48",
 };
 export const AssetUnderlying = {
-    fUSD: "0x1ABD0A92ce2913A50C8a82C90F30736e50770E90",
-    DAI: "0x001b3b4d0f3714ca98ba10f6042daebf0b1b7b6f",
+    "0x1abd0a92ce2913a50c8a82c90f30736e50770e90": "fUSD",
+    "0x001b3b4d0f3714ca98ba10f6042daebf0b1b7b6f": "DAI",
 };

@@ -11,43 +11,68 @@ import {
 import Navbar from "../../components/Navbar";
 import { calculateFlowRate, updateFlowPermissions } from "../../constant";
 
-import { abi, insuranceBond } from "../../contract";
+import { insuranceBond } from "../../contract";
 
 const InsurancePage = () => {
     const { contract } = useParams();
     const [approved, setApproved] = useState(false);
     const [bondSold, setBondSold] = useState(false);
-    let flowRate = 0;
+
+    const [priceData, setPriceData] = useState({
+        flowRate: 0,
+        insuredAmt: 0,
+        threshold: 0,
+    });
     const {
         data: insuranceData,
         isError,
         isLoading,
     } = useContractRead({
         address: contract,
-        abi: insuranceBond,
+        abi: insuranceBond.abi,
         functionName: "getInsuranceData",
         chainId: 80001,
     });
-    var insuredAmt = ethers.BigNumber.from(insuranceData[2]).toNumber();
-    flowRate = calculateFlowRate(
-        ethers.BigNumber.from(insuranceData[4]).toNumber()
-    );
-    let threshold = ethers.BigNumber.from(insuranceData[5]).toNumber();
 
     const { config: buyBond } = usePrepareContractWrite({
         address: contract,
-        abi: insuranceBond,
+        abi: insuranceBond.abi,
         functionName: "buyInsurance",
     });
     const { write: buy } = useContractWrite(buyBond);
 
     const provider = useProvider();
     const signer = useSigner();
-
+    function handleInputChange(name, value) {
+        setPriceData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    }
     useEffect(() => {
-        if (insuranceData[1] != "0x0000000000000000000000000000000000000000") {
+        if (
+            insuranceData != undefined &&
+            insuranceData[1] != "0x0000000000000000000000000000000000000000"
+        ) {
             setBondSold(true);
         }
+        if (insuranceData) {
+            handleInputChange(
+                "insuredAmt",
+                ethers.BigNumber.from(insuranceData[2]).toNumber()
+            );
+            handleInputChange(
+                "flowRate",
+                calculateFlowRate(
+                    ethers.BigNumber.from(insuranceData[4]).toNumber()
+                )
+            );
+            handleInputChange(
+                "threshold",
+                ethers.BigNumber.from(insuranceData[5]).toNumber()
+            );
+        }
+
         console.log(insuranceData);
     }, [insuranceData]);
 
@@ -71,7 +96,7 @@ const InsurancePage = () => {
                                 <h2 className="card-title text-white">
                                     Insured Amount in Vault
                                 </h2>
-                                <p>{insuredAmt}</p>
+                                <p>{priceData.insuredAmt}</p>
                             </div>
                         </div>{" "}
                         <div className="card w-[33%] bg-base-100 shadow-xl border-4">
@@ -79,7 +104,7 @@ const InsurancePage = () => {
                                 <h2 className="card-title text-white">
                                     Flowrate Premium
                                 </h2>
-                                <p>{flowRate}</p>
+                                <p>{priceData.flowRate}</p>
                             </div>
                         </div>
                     </div>{" "}
@@ -169,7 +194,7 @@ const InsurancePage = () => {
                                 <span className="text-[10px] mt-[-10px]">
                                     This is the breaking condition
                                 </span>
-                                <p>{threshold}</p>
+                                <p>{priceData.threshold}</p>
                             </div>
                         </div>
                         <div className="card w-[33%] bg-base-100 shadow-xl border-4">
@@ -205,7 +230,10 @@ const InsurancePage = () => {
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                     ></path>
                                 </svg>
-                                <span>already has bought this bond.</span>
+                                <span>
+                                    {insuranceData[1]} already has bought this
+                                    bond.
+                                </span>
                             </div>
                         </div>
                     )}

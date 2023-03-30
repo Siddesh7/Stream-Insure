@@ -4,7 +4,7 @@ export default function Navbar() {
     return (
         <div className="navbar w-[95%] m-auto pt-[20px]">
             <div className="navbar-start">
-                <a className="btn btn-ghost normal-case text-3xl">
+                <a href="/" className="btn btn-ghost normal-case text-3xl">
                     SuperStream
                 </a>
             </div>
