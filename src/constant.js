@@ -95,7 +95,7 @@ export const AssetUnderlying = {
 };
 export function shortenAddress(address) {
     if (typeof address !== "string" || address.length !== 42) {
-        throw new Error("Invalid Ethereum address");
+        address = "0x0000000000000000000000000000000000000000";
     }
 
     const start = address.slice(0, 6);
