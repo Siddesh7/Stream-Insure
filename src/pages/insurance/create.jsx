@@ -1,5 +1,10 @@
-import { useState } from "react";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useEffect, useState } from "react";
+import {
+    useContractRead,
+    useContractWrite,
+    usePrepareContractWrite,
+    useWaitForTransaction,
+} from "wagmi";
 import Navbar from "../../components/Navbar";
 
 import { deployer } from "../../contract";
@@ -34,8 +39,23 @@ export default function CreateBond() {
             insurance.monthlyPremium,
         ],
     });
-    const { write: createInsurance } = useContractWrite(createInsuranceConfig);
+    const {
+        data,
+        write: createInsurance,
+        status,
+    } = useContractWrite(createInsuranceConfig);
+    const { isLoading, isSuccess } = useWaitForTransaction({
+        hash: data?.hash,
+    });
+    const [shouldRenderRedirect, setShouldRenderRedirect] = useState(false);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShouldRenderRedirect(true);
+        }, 30000);
+
+        return () => clearTimeout(timer);
+    }, []);
     return (
         <div>
             <Navbar />
@@ -196,16 +216,58 @@ export default function CreateBond() {
                                 name="thresholdPrice"
                             />
 
-                            <button
-                                className="btn btn-success"
-                                onClick={createInsurance}
-                            >
-                                Create bond
-                            </button>
+                            {status == "loading" ? (
+                                <button
+                                    className="btn btn-success relative"
+                                    onClick={createInsurance}
+                                    disabled
+                                >
+                                    <div className="w-8 h-8 border-4 border-dashed rounded-full animate-spin dark:border-violet-400"></div>{" "}
+                                </button>
+                            ) : (
+                                <button
+                                    className="btn btn-success"
+                                    onClick={createInsurance}
+                                >
+                                    Create bond
+                                </button>
+                            )}
+
+                            {isSuccess && (
+                                <div>
+                                    {shouldRenderRedirect && <Redirect />}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function Redirect() {
+    const { data: insuranceDeployed } = useContractRead({
+        address: deployer.address,
+        abi: deployer.abi,
+        functionName: "getCreatedInsurances",
+        chainId: 80001,
+    });
+    const host = "http://localhost:5173";
+    const [insData, setInsData] = useState(null);
+    useEffect(() => {
+        if (insuranceDeployed != undefined) {
+            setInsData(insuranceDeployed[insuranceDeployed.length - 1]);
+            console.log(insuranceDeployed[insuranceDeployed.length - 1]);
+        }
+    }, [insuranceDeployed]);
+    return (
+        <div>
+            {insData && (
+                <div>
+                    {window.location.replace(`${host}/insurance/${insData}`)}
+                </div>
+            )}
         </div>
     );
 }

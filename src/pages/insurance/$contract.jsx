@@ -7,15 +7,23 @@ import {
     useContractWrite,
     useProvider,
     useSigner,
+    useAccount,
+    erc20ABI,
 } from "wagmi";
 import Navbar from "../../components/Navbar";
-import { calculateFlowRate, updateFlowPermissions } from "../../constant";
+import {
+    AssetUnderlying,
+    calculateFlowRate,
+    shortenAddress,
+    updateFlowPermissions,
+} from "../../constant";
 
 import { insuranceBond } from "../../contract";
 
 const InsurancePage = () => {
     const { contract } = useParams();
     const [approved, setApproved] = useState(false);
+    const [approveDeposit, setApprovedDeposit] = useState(false);
     const [bondSold, setBondSold] = useState(false);
 
     const [priceData, setPriceData] = useState({
@@ -23,23 +31,38 @@ const InsurancePage = () => {
         insuredAmt: 0,
         threshold: 0,
     });
-    const {
-        data: insuranceData,
-        isError,
-        isLoading,
-    } = useContractRead({
+    const { data: insuranceData } = useContractRead({
         address: contract,
         abi: insuranceBond.abi,
         functionName: "getInsuranceData",
         chainId: 80001,
     });
-
+    const { data: readyToBuy } = useContractRead({
+        address: contract,
+        abi: insuranceBond.abi,
+        functionName: "deposit",
+        chainId: 80001,
+    });
+    const { address } = useAccount();
     const { config: buyBond } = usePrepareContractWrite({
         address: contract,
         abi: insuranceBond.abi,
         functionName: "buyInsurance",
     });
     const { write: buy } = useContractWrite(buyBond);
+    const { config: depositFund } = usePrepareContractWrite({
+        address: contract,
+        abi: insuranceBond.abi,
+        functionName: "depositInsuredAmount",
+    });
+    const { write: depositToken } = useContractWrite(depositFund);
+    const { config: approveToken } = usePrepareContractWrite({
+        address: insuranceData[3],
+        abi: erc20ABI,
+        functionName: "approve",
+        args: [contract, "10000000000000000000000000000"],
+    });
+    const { write: approveTokenDeposit } = useContractWrite(approveToken);
 
     const provider = useProvider();
     const signer = useSigner();
@@ -90,7 +113,12 @@ const InsurancePage = () => {
                             <h2 className="text-lg font-bold mb-2 text-green-500">
                                 Insurer
                             </h2>
-                            <p className="text-gray-700">{insuranceData[0]}</p>
+                            <a
+                                href={`https://mumbai.polygonscan.com/address/${insuranceData[0]}`}
+                                className="text-gray-700"
+                            >
+                                {shortenAddress(insuranceData[0])}
+                            </a>
                         </div>
                         <div className="bg-white rounded-lg shadow-lg p-4">
                             <h2 className="text-lg font-bold mb-2 text-green-500">
@@ -120,7 +148,12 @@ const InsurancePage = () => {
                             <h2 className="text-lg font-bold mb-2 text-green-500">
                                 Asset held in the vault
                             </h2>
-                            <p className="text-gray-700">{insuranceData[3]}</p>
+                            <a
+                                href={`https://mumbai.polygonscan.com/address/${insuranceData[3]}`}
+                                className="text-gray-700"
+                            >
+                                {shortenAddress(insuranceData[3])}{" "}
+                            </a>
                         </div>
                         {bondSold && (
                             <div className="bg-white rounded-lg shadow-lg p-4">
@@ -131,18 +164,57 @@ const InsurancePage = () => {
                                     href={`https://mumbai.polygonscan.com/address/${insuranceData[1]}`}
                                     className="text-gray-700"
                                 >
-                                    {insuranceData[1]}
+                                    {shortenAddress(insuranceData[1])}
                                 </a>
                             </div>
                         )}
                     </div>
-                    {!bondSold && (
-                        <label
-                            htmlFor="my-modal-3"
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-8"
-                        >
-                            Buy bond
-                        </label>
+                    {!bondSold && readyToBuy && (
+                        <div className="my-[30px]">
+                            {insuranceData[0] != address && (
+                                <label
+                                    htmlFor="my-modal-3"
+                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-8"
+                                >
+                                    Buy bond
+                                </label>
+                            )}
+                        </div>
+                    )}
+                    {!readyToBuy && (
+                        <div>
+                            {insuranceData[0] == address ? (
+                                <div>
+                                    {!approveDeposit ? (
+                                        <button
+                                            className="btn btn-primary my-[20px]"
+                                            onClick={() => {
+                                                approveTokenDeposit();
+                                                setApprovedDeposit(true);
+                                            }}
+                                        >
+                                            {" "}
+                                            Approve
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="btn btn-primary my-[20px] "
+                                            onClick={depositToken}
+                                        >
+                                            {" "}
+                                            Deposit Insurance
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <div>
+                                    <h3 className="text-red-500 text-[20px] my-[30px]">
+                                        This contract is not funded by the
+                                        insurance creator :(
+                                    </h3>
+                                </div>
+                            )}
+                        </div>
                     )}
                     <div>
                         <input

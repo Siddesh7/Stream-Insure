@@ -7,5 +7,8 @@ module.exports = {
     daisyui: {
         themes: ["night"],
     },
+    corePlugins: {
+        animation: true,
+    },
     plugins: [require("@tailwindcss/typography"), require("daisyui")],
 };

@@ -93,3 +93,12 @@ export const AssetUnderlying = {
     "0x1abd0a92ce2913a50c8a82c90f30736e50770e90": "fUSD",
     "0x001b3b4d0f3714ca98ba10f6042daebf0b1b7b6f": "DAI",
 };
+export function shortenAddress(address) {
+    if (typeof address !== "string" || address.length !== 42) {
+        throw new Error("Invalid Ethereum address");
+    }
+
+    const start = address.slice(0, 6);
+    const end = address.slice(-6);
+    return `${start}......${end}`;
+}
