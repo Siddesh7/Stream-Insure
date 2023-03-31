@@ -38,13 +38,9 @@ export async function updateFlowPermissions(
         provider: provider,
     });
 
-    console.log(signer);
     const superSigner = sf.createSigner({ signer: signer });
 
-    console.log(await superSigner.getAddress());
     const daix = await sf.loadSuperToken("fDAIx");
-
-    console.log(daix);
 
     try {
         const updateFlowOperatorOperation = daix.updateFlowOperatorPermissions({
@@ -54,20 +50,8 @@ export async function updateFlowPermissions(
             // userData?: string
         });
 
-        console.log("Updating your flow permissions...");
-
         const result = await updateFlowOperatorOperation.exec(signer);
-        console.log(result);
 
-        console.log(
-            `Congrats - you've just updated flow permissions for 0xDCB45e4f6762C3D7C61a00e96Fb94ADb7Cf27721
-      Network: Goerli
-      Super Token: DAIx
-      Operator: ${operator}
-      Permission Type: ${permissionType},
-      Flow Rate Allowance: ${flowRateAllowance}
-      `
-        );
         return true;
     } catch (error) {
         console.log(

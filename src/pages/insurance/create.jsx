@@ -189,6 +189,7 @@ export default function CreateBond() {
                                     value={
                                         "0x918E0d5C96cAC79674E2D38066651212be3C9C48"
                                     }
+                                    disabled
                                 >
                                     fTUSDx
                                 </option>
@@ -196,6 +197,7 @@ export default function CreateBond() {
                                     value={
                                         "0x42bb40bF79730451B11f6De1CbA222F17b87Afd7"
                                     }
+                                    disabled
                                 >
                                     fUSDCx
                                 </option>
